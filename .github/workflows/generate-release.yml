@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Config Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Get current version
+        id: version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          RELEASE_VERSION=${VERSION/-SNAPSHOT/}
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "release=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Remove SNAPSHOT
+        run: |
+          mvn versions:set -DnewVersion=${{ steps.version.outputs.release }}
+          mvn versions:commit
+
+      - name: Commit release version
+        run: |
+          git add .
+          git commit -m "release: v${{ steps.version.outputs.release }}"
+
+      - name: Create tag
+        run: |
+          git tag v${{ steps.version.outputs.release }}
+
+      - name: Push main and tags
+        run: |
+          git push origin main --tags
+
+      - name: Merge main into develop
+        run: |
+          git checkout develop
+          git pull origin develop
+          git merge main
+
+      - name: Increment minor and add SNAPSHOT
+        run: |
+          CURRENT=${{ steps.version.outputs.release }}
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+
+          NEW_MINOR=$((MINOR + 1))
+
+          NEXT_VERSION="$MAJOR.$NEW_MINOR.0-SNAPSHOT"
+
+          mvn versions:set -DnewVersion=$NEXT_VERSION
+          mvn versions:commit
+
+      - name: Commit next snapshot
+        run: |
+          git add .
+          git commit -m "chore: next development version"
+
+      - name: Push develop
+        run: |
+          git push origin develop
