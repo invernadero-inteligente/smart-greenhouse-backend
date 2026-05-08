@@ -2,17 +2,17 @@ name: Validate PR to main
 
 on:
   pull_request:
-    branches:
-      - main
 
 jobs:
   validate-source-branch:
+    if: github.base_ref == 'main'
     runs-on: ubuntu-latest
 
     steps:
       - name: Validate source branch
         run: |
           echo "Branch origen: ${{ github.head_ref }}"
+          echo "Branch destino: ${{ github.base_ref }}"
 
           if [ "${{ github.head_ref }}" != "develop" ]; then
             echo "Solo se permiten PR desde develop hacia main"
