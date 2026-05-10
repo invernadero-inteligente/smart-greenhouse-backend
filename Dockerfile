@@ -1,23 +1,27 @@
-FROM maven:3.9-eclipse-temurin-21 AS app
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-COPY invernadero_inteligente_backend/pom.xml .
+COPY pom.xml .
+
 RUN mvn dependency:go-offline
 
-COPY invernadero_inteligente_backend/src ./src
-COPY invernadero_inteligente_backend/.env ./.env
+COPY src ./src
 
-RUN echo "===== VERIFICANDO MIGRACIONES EN RESOURCES =====" && \
-    find src/main/resources -type f || true
+RUN mvn package -DskipTests -Dspring.flyway.enabled=false
 
-RUN test -f src/main/resources/db/migration/V1__init_schema.sql
+FROM eclipse-temurin:21-jre
 
-RUN mvn clean package -DskipTests -Dspring.flyway.enabled=false
+WORKDIR /app
 
-RUN echo "===== VERIFICANDO CONTENIDO DEL JAR =====" && \
-    jar tf target/*.jar | grep -E "db/migration|flyway" || true
+RUN useradd -ms /bin/bash spring
+
+COPY --from=builder /app/target/*.jar app.jar
+
+RUN chown spring:spring app.jar
+
+USER spring
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "echo '===== CONTENIDO FLYWAY EN JAR ====='; jar tf target/*.jar | grep -E 'db/migration|flyway' || true; echo '===== INICIANDO APP ====='; java -jar target/*.jar --debug"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: invernadero-postgres
+    container_name: greenhouse-postgres
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-invernadero_db}
@@ -17,13 +17,13 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - invernadero-backend-net
+      - greenhouse-backend-net
     env_file:
-      - ./invernadero_inteligente_backend/.env
+      - .env
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: invernadero-pgadmin
+    container_name: greenhouse-pgadmin
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@invernadero.com}
@@ -36,18 +36,18 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - invernadero-backend-net
+      - greenhouse-backend-net
     env_file:
-      - ./invernadero_inteligente_backend/.env
+      - .env
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: invernadero-backend
+    build: .
+    container_name: greenhouse-backend
     restart: always
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-invernadero_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-invernadero_user}
@@ -64,12 +64,10 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - invernadero-backend-net
-    env_file:
-      - ./invernadero_inteligente_backend/.env
+      - greenhouse-backend-net
 
 networks:
-  invernadero-backend-net:
+  greenhouse-backend-net:
     driver: bridge
 
 volumes:
