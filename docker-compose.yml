@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: invernadero-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-invernadero_db}
+      POSTGRES_USER: ${POSTGRES_USER:-invernadero_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-invernadero_pass}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-invernadero_user} -d ${POSTGRES_DB:-invernadero_db}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - invernadero-backend-net
+    env_file:
+      - ./invernadero_inteligente_backend/.env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: invernadero-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@invernadero.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - invernadero-backend-net
+    env_file:
+      - ./invernadero_inteligente_backend/.env
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: invernadero-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-invernadero_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-invernadero_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-invernadero_pass}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-invernadero_db}
+      SPRING_FLYWAY_USER: ${POSTGRES_USER:-invernadero_user}
+      SPRING_FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:-invernadero_pass}
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "false"
+      SPRING_FLYWAY_BASELINE_VERSION: "0"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - invernadero-backend-net
+    env_file:
+      - ./invernadero_inteligente_backend/.env
+
+networks:
+  invernadero-backend-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
