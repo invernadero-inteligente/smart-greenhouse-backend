@@ -21,14 +21,19 @@ public class Sensor extends AuditableEntity {
     @JoinColumn(name = "zone_id", nullable = false)
     private Zone zone;
 
-    @Column(nullable = false, unique = true, length = 100)
-    private String serialNumber;
+    /** Nombre descriptivo del sensor (ej: "Sensor Temperatura Zona A") */
+    @Column(nullable = false, length = 100)
+    private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private SensorVariable variable;
 
+    /** Unidad de medida (ej: "°C", "%", "pH") */
+    @Column(length = 20)
+    private String unit;
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private SensorStatus status;
 }

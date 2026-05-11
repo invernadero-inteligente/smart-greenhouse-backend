@@ -20,14 +20,20 @@ public class InventoryItem {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private InventoryCategory category;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal quantity;
+    @Builder.Default
+    private BigDecimal quantity = BigDecimal.ZERO;
 
     @Column(nullable = false, length = 20)
     private String unit;
+
+    /** Nivel mínimo de stock. Alerta cuando quantity <= minStock. */
+    @Column(name = "min_stock", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal minStock = BigDecimal.ZERO;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

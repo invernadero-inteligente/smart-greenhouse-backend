@@ -24,4 +24,8 @@ public class Zone extends AuditableEntity {
 
     @Column(precision = 10, scale = 2)
     private BigDecimal area;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
 }

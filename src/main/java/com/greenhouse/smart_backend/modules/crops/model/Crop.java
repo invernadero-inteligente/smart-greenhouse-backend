@@ -4,6 +4,8 @@ import com.greenhouse.smart_backend.shared.persistence.AuditableEntity;
 import com.greenhouse.smart_backend.modules.zones.model.Zone;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Crop extends AuditableEntity {
-    @Id
+   @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,13 +26,16 @@ public class Crop extends AuditableEntity {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "crop_type", nullable = false, length = 100)
-    private String type;
+    @Column(length = 100)
+    private String variety;
 
-    private LocalDateTime plantedAt;
-    private LocalDateTime expectedHarvestAt;
+    @Column(name = "plant_count")
+    private Integer plantCount;
+
+    @Column(name = "sowing_date")
+    private LocalDate sowingDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private CropStatus status;
 }
