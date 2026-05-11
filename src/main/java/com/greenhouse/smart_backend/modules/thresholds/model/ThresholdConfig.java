@@ -9,12 +9,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "threshold_configs")
+@Table(
+    name = "threshold_configs",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uq_threshold_zone_variable",
+        columnNames = {"zone_id", "variable"}
+    )
+)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ThresholdConfig {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,18 +31,19 @@ public class ThresholdConfig {
     private Zone zone;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SensorVariable sensorVariable;
+    @Column(nullable = false, length = 50)
+    private SensorVariable variable;
 
-    @Column(precision = 10, scale = 2)
+    @Column(name = "min_value", precision = 10, scale = 2)
     private BigDecimal minValue;
 
-    @Column(precision = 10, scale = 2)
+    @Column(name = "max_value", precision = 10, scale = 2)
     private BigDecimal maxValue;
 
+    /** Usuario que realizó el último cambio en este umbral */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_user_id")
-    private User createdBy;
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
