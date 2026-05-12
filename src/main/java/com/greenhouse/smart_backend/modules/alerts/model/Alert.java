@@ -1,10 +1,8 @@
 package com.greenhouse.smart_backend.modules.alerts.model;
 
 import com.greenhouse.smart_backend.modules.crops.model.Crop;
-import com.greenhouse.smart_backend.modules.sensors.model.Sensor;
 import com.greenhouse.smart_backend.modules.users.model.User;
 import com.greenhouse.smart_backend.modules.zones.model.Zone;
-import com.greenhouse.smart_backend.shared.enums.SensorVariable;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,12 +22,8 @@ public class Alert {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "zone_id")
+    @JoinColumn(name = "zone_id", nullable = false)
     private Zone zone;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sensor_id")
-    private Sensor sensor;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "crop_id")
@@ -39,9 +33,11 @@ public class Alert {
     @Column(nullable = false, length = 50)
     private AlertOrigin origin;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private SensorVariable variable;
+    @Column(name = "variable_name", nullable = false, length = 100)
+    private String variableName;
+
+    @Column(name = "unit", nullable = false, length = 50)
+    private String unit;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -50,7 +46,6 @@ public class Alert {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
-    /** Valor del sensor que disparó la alerta */
     @Column(precision = 10, scale = 2)
     private BigDecimal value;
 
@@ -59,7 +54,6 @@ public class Alert {
     @Builder.Default
     private AlertStatus status = AlertStatus.OPEN;
 
-    /** Usuario que atendió la alerta. Nulo mientras esté OPEN. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attended_by")
     private User attendedBy;
