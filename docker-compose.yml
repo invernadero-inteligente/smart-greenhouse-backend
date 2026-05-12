@@ -21,6 +21,19 @@ services:
     env_file:
       - .env
 
+  mongo:
+    image: mongo:7
+    container_name: greenhouse-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - greenhouse-backend-net
+    env_file:
+      - .env
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: greenhouse-pgadmin
@@ -63,6 +76,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      mongo:
+        condition: service_started
     networks:
       - greenhouse-backend-net
 
@@ -73,3 +88,4 @@ networks:
 volumes:
   postgres_data:
   pgadmin_data:
+  mongo_data:

@@ -29,8 +29,9 @@ public class Crop extends AuditableEntity {
     @Column(length = 100)
     private String variety;
 
-    @Column(name = "plant_count")
-    private Integer plantCount;
+    @Column(name = "plant_count", nullable = false)
+    @Builder.Default
+    private Integer plantCount = 0;
 
     @Column(name = "sowing_date")
     private LocalDate sowingDate;

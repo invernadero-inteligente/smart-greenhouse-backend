@@ -1,6 +1,5 @@
 package com.greenhouse.smart_backend.modules.thresholds.model;
 
-import com.greenhouse.smart_backend.shared.enums.SensorVariable;
 import com.greenhouse.smart_backend.modules.users.model.User;
 import com.greenhouse.smart_backend.modules.zones.model.Zone;
 import jakarta.persistence.*;
@@ -12,8 +11,8 @@ import java.time.LocalDateTime;
 @Table(
     name = "threshold_configs",
     uniqueConstraints = @UniqueConstraint(
-        name = "uq_threshold_zone_variable",
-        columnNames = {"zone_id", "variable"}
+        name = "uq_threshold_zone_variable_name",
+        columnNames = {"zone_id", "variable_name"}
     )
 )
 @Data
@@ -30,26 +29,28 @@ public class ThresholdConfig {
     @JoinColumn(name = "zone_id", nullable = false)
     private Zone zone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private SensorVariable variable;
+    @Column(name = "variable_name", nullable = false, length = 100)
+    private String variableName;
 
-    @Column(name = "min_value", precision = 10, scale = 2)
+    @Column(name = "unit", nullable = false, length = 50)
+    private String unit;
+
+    @Column(name = "min_value", precision = 10, scale = 2, nullable = false)
     private BigDecimal minValue;
 
-    @Column(name = "max_value", precision = 10, scale = 2)
+    @Column(name = "max_value", precision = 10, scale = 2, nullable = false)
     private BigDecimal maxValue;
 
-    /** Usuario que realizó el último cambio en este umbral */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @PrePersist
     @PreUpdate
-    public void preUpdate() {
+    public void preSave() {
         this.updatedAt = LocalDateTime.now();
     }
 }

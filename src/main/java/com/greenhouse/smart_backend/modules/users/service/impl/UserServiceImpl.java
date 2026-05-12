@@ -55,9 +55,9 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .fullName(request.getFullName().trim())
                 .email(request.getEmail().trim().toLowerCase())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(UserRole.OPERATOR)
-                .active(true)
+                .isActive(true)
                 .build();
 
         User saved = userRepository.save(user);
@@ -121,9 +121,9 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .fullName(request.getFullName().trim())
                 .email(request.getEmail().trim().toLowerCase())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(role)
-                .active(true)
+                .isActive(true)
                 .build();
 
         return toResponseDTO(userRepository.save(user));
