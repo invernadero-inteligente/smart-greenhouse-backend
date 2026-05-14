@@ -6,6 +6,9 @@ import com.greenhouse.smart_backend.modules.users.dto.request.UserUpdateRequest;
 import com.greenhouse.smart_backend.modules.users.dto.response.UserResponseDTO;
 import com.greenhouse.smart_backend.modules.users.service.UserService;
 import com.greenhouse.smart_backend.shared.security.UserPrincipal;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,10 +19,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "User Controller", description = "Endpoints para gestión de usuarios (solo ADMIN)")
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@SecurityRequirements({
+        @SecurityRequirement(name = "bearerAuth")
+})
 public class UserController {
 
     private final UserService userService;

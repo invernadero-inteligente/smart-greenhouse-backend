@@ -140,6 +140,25 @@
             <version>1.19.3</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+
+        <!-- Binding Lombok + MapStruct -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>0.2.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -169,11 +188,28 @@
                         </goals>
                         <configuration>
                             <annotationProcessorPaths>
+
+                                <!-- Lombok -->
                                 <path>
                                     <groupId>org.projectlombok</groupId>
                                     <artifactId>lombok</artifactId>
                                     <version>1.18.32</version>
                                 </path>
+
+                                <!-- MapStruct -->
+                                <path>
+                                    <groupId>org.mapstruct</groupId>
+                                    <artifactId>mapstruct-processor</artifactId>
+                                    <version>1.6.3</version>
+                                </path>
+
+                                <!-- Lombok + MapStruct binding -->
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok-mapstruct-binding</artifactId>
+                                    <version>0.2.0</version>
+                                </path>
+
                             </annotationProcessorPaths>
                         </configuration>
                     </execution>
@@ -185,11 +221,28 @@
                         </goals>
                         <configuration>
                             <annotationProcessorPaths>
+
+                                <!-- Lombok -->
                                 <path>
                                     <groupId>org.projectlombok</groupId>
                                     <artifactId>lombok</artifactId>
                                     <version>1.18.32</version>
                                 </path>
+
+                                <!-- MapStruct -->
+                                <path>
+                                    <groupId>org.mapstruct</groupId>
+                                    <artifactId>mapstruct-processor</artifactId>
+                                    <version>1.6.3</version>
+                                </path>
+
+                                <!-- Lombok + MapStruct binding -->
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok-mapstruct-binding</artifactId>
+                                    <version>0.2.0</version>
+                                </path>
+
                             </annotationProcessorPaths>
                         </configuration>
                     </execution>

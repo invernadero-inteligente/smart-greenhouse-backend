@@ -1,0 +1,91 @@
+package com.greenhouse.smart_backend.modules.crops.controller;
+
+import com.greenhouse.smart_backend.modules.crops.dto.request.CropCreateRequest;
+import com.greenhouse.smart_backend.modules.crops.dto.request.CropUpdateRequest;
+import com.greenhouse.smart_backend.modules.crops.dto.response.*;
+import com.greenhouse.smart_backend.modules.crops.mapper.CropsMapper;
+import com.greenhouse.smart_backend.modules.crops.model.CropStatus;
+import com.greenhouse.smart_backend.modules.crops.service.CropService;
+import com.greenhouse.smart_backend.shared.responses.ApiResponseDTO;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Tag(name = "Crop Controller", description = "Endpoints para gestión de cultivos")
+@RestController
+@RequestMapping("/api/crops")
+@RequiredArgsConstructor
+@Slf4j
+@SecurityRequirements({
+        @SecurityRequirement(name = "bearerAuth")
+})
+public class CropController {
+
+    private final CropService cropService;
+    private final CropsMapper cropsMapper;
+
+     /**
+     * GET /api/crops
+     * Lista todos los cultivos.
+     * Accesible por todos los usuarios autenticados.
+     */
+    @GetMapping
+    public ResponseEntity<CropsDataResponseDTO<List<CropsZoneResponseDTO>>> listCrops(
+            @RequestParam(required = false) CropStatus status,
+            @RequestParam(required = false) Long zoneId) {
+
+        log.info("GET /api/crops - status={}, zoneId={}", status, zoneId);
+        List<CropListResponseDTO> crops = cropService.listCrops(status, zoneId);
+        return ResponseEntity.ok(cropsMapper.toResponse(crops));
+    }
+
+    /**
+     * GET /api/crops/{id}
+     * Retorna el detalle de un cultivo.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponseDTO<CropResponseDTO>> getCropById(@PathVariable Long id) {
+        log.info("GET /api/crops/{}", id);
+        return ResponseEntity.ok(ApiResponseDTO.success(cropService.getCropById(id)));
+    }
+
+    /**
+     * POST /api/crops
+     * Crea un nuevo cultivo. Solo ADMIN.
+     */
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CropsDataResponseDTO<CreateCropResponseDTO>> createCrop(
+            @Valid @RequestBody CropCreateRequest request) {
+
+        log.info("POST /api/crops - name={}", request.getName());
+        CropResponseDTO created = cropService.createCrop(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(cropsMapper.toResponse(created));
+    }
+
+    /**
+     * PATCH /api/crops/{id}
+     * Actualiza parcialmente un cultivo. Solo ADMIN.
+     */
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> updateCrop(
+            @PathVariable Long id,
+            @Valid @RequestBody CropUpdateRequest request) {
+
+        log.info("PATCH /api/crops/{}", id);
+        CropResponseDTO updated = cropService.updateCrop(id, request);
+        log.info("Response: {}", updated);
+        return ResponseEntity.noContent().build();
+    }
+}

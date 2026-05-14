@@ -26,7 +26,7 @@ public class ApiResponseDTO<T> {
         return ApiResponseDTO.<T>builder()
                 .success(true)
                 .status(200)
-                .message("OperaciÃ³n realizada exitosamente")
+                .message("Operación realizada exitosamente")
                 .data(data)
                 .timestamp(LocalDateTime.now())
                 .build();

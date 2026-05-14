@@ -20,14 +20,12 @@ public class PageRequestDTO {
     private String direction = "ASC";
 
     public int getPage() {
-        return page < 0 ? 0 : page;
+        return Math.max(page, 0);
     }
 
     public int getSize() {
         if (size < 1)
             return 20;
-        if (size > 100)
-            return 100;
-        return size;
+        return Math.min(size, 100);
     }
 }
