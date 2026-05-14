@@ -7,6 +7,7 @@ import com.greenhouse.smart_backend.modules.crops.dto.response.CropResponseDTO;
 import com.greenhouse.smart_backend.modules.crops.model.CropStatus;
 import com.greenhouse.smart_backend.modules.crops.service.CropService;
 import com.greenhouse.smart_backend.shared.responses.ApiResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Crop Controller", description = "Endpoints para gestión de cultivos")
 @RestController
 @RequestMapping("/api/crops")
 @RequiredArgsConstructor

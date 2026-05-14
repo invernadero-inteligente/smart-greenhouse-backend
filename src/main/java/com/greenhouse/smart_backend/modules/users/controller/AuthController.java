@@ -4,6 +4,7 @@ import com.greenhouse.smart_backend.modules.users.dto.request.AuthLoginRequest;
 import com.greenhouse.smart_backend.modules.users.dto.request.AuthRegisterRequest;
 import com.greenhouse.smart_backend.modules.users.dto.response.AuthResponse;
 import com.greenhouse.smart_backend.modules.users.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Auth Controller", description = "Endpoints para registro y autenticación de usuarios")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
