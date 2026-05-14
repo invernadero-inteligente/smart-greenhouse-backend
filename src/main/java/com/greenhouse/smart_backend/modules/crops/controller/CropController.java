@@ -7,6 +7,8 @@ import com.greenhouse.smart_backend.modules.crops.dto.response.CropResponseDTO;
 import com.greenhouse.smart_backend.modules.crops.model.CropStatus;
 import com.greenhouse.smart_backend.modules.crops.service.CropService;
 import com.greenhouse.smart_backend.shared.responses.ApiResponseDTO;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,9 @@ import java.util.List;
 @RequestMapping("/api/crops")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirements({
+        @SecurityRequirement(name = "bearerAuth")
+})
 public class CropController {
 
     private final CropService cropService;
