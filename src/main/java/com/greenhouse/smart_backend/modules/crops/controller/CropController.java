@@ -2,8 +2,8 @@ package com.greenhouse.smart_backend.modules.crops.controller;
 
 import com.greenhouse.smart_backend.modules.crops.dto.request.CropCreateRequest;
 import com.greenhouse.smart_backend.modules.crops.dto.request.CropUpdateRequest;
-import com.greenhouse.smart_backend.modules.crops.dto.response.CropListResponseDTO;
-import com.greenhouse.smart_backend.modules.crops.dto.response.CropResponseDTO;
+import com.greenhouse.smart_backend.modules.crops.dto.response.*;
+import com.greenhouse.smart_backend.modules.crops.mapper.CropsMapper;
 import com.greenhouse.smart_backend.modules.crops.model.CropStatus;
 import com.greenhouse.smart_backend.modules.crops.service.CropService;
 import com.greenhouse.smart_backend.shared.responses.ApiResponseDTO;
@@ -31,6 +31,7 @@ import java.util.List;
 public class CropController {
 
     private final CropService cropService;
+    private final CropsMapper cropsMapper;
 
      /**
      * GET /api/crops
@@ -38,13 +39,13 @@ public class CropController {
      * Accesible por todos los usuarios autenticados.
      */
     @GetMapping
-    public ResponseEntity<ApiResponseDTO<List<CropListResponseDTO>>> listCrops(
+    public ResponseEntity<CropsDataResponseDTO<List<CropsZoneResponseDTO>>> listCrops(
             @RequestParam(required = false) CropStatus status,
             @RequestParam(required = false) Long zoneId) {
 
         log.info("GET /api/crops - status={}, zoneId={}", status, zoneId);
         List<CropListResponseDTO> crops = cropService.listCrops(status, zoneId);
-        return ResponseEntity.ok(ApiResponseDTO.success(crops));
+        return ResponseEntity.ok(cropsMapper.toResponse(crops));
     }
 
     /**
@@ -63,13 +64,13 @@ public class CropController {
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponseDTO<CropResponseDTO>> createCrop(
+    public ResponseEntity<CropsDataResponseDTO<CreateCropResponseDTO>> createCrop(
             @Valid @RequestBody CropCreateRequest request) {
 
         log.info("POST /api/crops - name={}", request.getName());
         CropResponseDTO created = cropService.createCrop(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseDTO.success("Cultivo registrado exitosamente", created));
+                .body(cropsMapper.toResponse(created));
     }
 
     /**
@@ -78,12 +79,13 @@ public class CropController {
      */
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponseDTO<CropResponseDTO>> updateCrop(
+    public ResponseEntity<Void> updateCrop(
             @PathVariable Long id,
             @Valid @RequestBody CropUpdateRequest request) {
 
         log.info("PATCH /api/crops/{}", id);
         CropResponseDTO updated = cropService.updateCrop(id, request);
-        return ResponseEntity.ok(ApiResponseDTO.success("Cultivo actualizado exitosamente", updated));
+        log.info("Response: {}", updated);
+        return ResponseEntity.noContent().build();
     }
 }
