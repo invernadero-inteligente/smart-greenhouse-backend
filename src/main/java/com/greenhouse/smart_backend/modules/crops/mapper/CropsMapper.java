@@ -39,7 +39,6 @@ public interface CropsMapper {
 
     @Mapping(target = "status", expression = "java(crop.getStatus().name())")
     @Mapping(target = "sowingDate", source = "sowingDate")
-    @Mapping(target = "conditions", ignore = true)
     CropsInfoResponseDTO toInfo(CropListResponseDTO crop);
 
     default Date map(LocalDate localDate) {
