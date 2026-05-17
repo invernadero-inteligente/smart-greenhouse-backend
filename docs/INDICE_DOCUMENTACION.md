@@ -80,6 +80,16 @@
    - **Tiempo de lectura:** 10 min
    - **Acción:** HAZLO ANTES DE COMPILAR. Lee y sigue los 4 pasos iniciales
 
+### 7. **CROPS_ZONES_API.md**
+   - **Para:** Desarrolladores del equipo IS y frontend
+   - **Contenido:** Endpoints de zonas y cultivos, flujo Postman, ejemplos curl, errores comunes
+   - **Tiempo de lectura:** 10 min
+
+### 8. **INVENTORY_API.md**
+   - **Para:** Desarrolladores del equipo IS y frontend
+   - **Contenido:** Endpoints de inventario, filtros por categoría y stock bajo, flujo Postman, ejemplos curl
+   - **Tiempo de lectura:** 10 min
+
 ---
 
 ## 🗂️ ESTRUCTURA DE CARPETAS
