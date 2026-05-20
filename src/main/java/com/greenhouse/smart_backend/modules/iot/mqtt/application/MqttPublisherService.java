@@ -2,6 +2,7 @@ package com.greenhouse.smart_backend.modules.iot.mqtt.application;
 
 import com.greenhouse.smart_backend.modules.iot.mqtt.config.MqttProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class MqttPublisherService {
 
@@ -68,7 +70,8 @@ public class MqttPublisherService {
 
         mqttClient.publish(topic, message);
 
-        System.out.println("Mensaje publicado en tópico: " + topic);
-        System.out.println(json);
+        log.info("Mensaje publicado en tópico: {}", topic);
+        log.info(json);
+
     }
 }

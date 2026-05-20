@@ -4,11 +4,13 @@ import com.greenhouse.smart_backend.modules.iot.mqtt.config.MqttProperties;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MqttConnectionService {
@@ -39,7 +41,7 @@ public class MqttConnectionService {
 
             mqttClient.connect(options);
 
-            System.out.println("Conectado correctamente a EMQX: " + mqttProperties.getBrokerUrl());
+            log.info("Conectado correctamente a EMQX: {}", mqttProperties.getBrokerUrl());
 
         } catch (MqttException e) {
             throw new RuntimeException("No se pudo conectar a EMQX", e);
@@ -59,10 +61,10 @@ public class MqttConnectionService {
         try {
             if (mqttClient.isConnected()) {
                 mqttClient.disconnect();
-                System.out.println("Cliente MQTT desconectado");
+                log.info("Cliente MQTT desconectado");
             }
         } catch (MqttException e) {
-            System.err.println("Error desconectando cliente MQTT: " + e.getMessage());
+            log.error("Error desconectando cliente MQTT: {}", e.getMessage());
         }
     }
 }

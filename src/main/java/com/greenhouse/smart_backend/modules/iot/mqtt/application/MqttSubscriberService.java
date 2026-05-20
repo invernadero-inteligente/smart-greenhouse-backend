@@ -1,19 +1,24 @@
 package com.greenhouse.smart_backend.modules.iot.mqtt.application;
 
 import com.greenhouse.smart_backend.modules.iot.mqtt.config.MqttProperties;
+import com.greenhouse.smart_backend.modules.iot.service.SensorService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class MqttSubscriberService implements MqttCallbackExtended {
 
     private final MqttConnectionService mqttConnectionService;
     private final MqttProperties mqttProperties;
+
+    private final SensorService sensorService;
 
     private MqttClient mqttClient;
 
@@ -35,35 +40,35 @@ public class MqttSubscriberService implements MqttCallbackExtended {
 
         mqttClient.subscribe(infoTopic, 1);
 
-        System.out.println("Suscrito a tópico info: " + infoTopic);
+        log.info("Suscrito a tópico info: {}", infoTopic);
     }
 
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
-        System.out.println("Conexión MQTT completada. reconnect=" + reconnect + ", serverURI=" + serverURI);
+        log.info("Conexión MQTT completada. reconnect={}, serverURI={}", reconnect, serverURI);
 
         if (reconnect) {
             try {
                 subscribeToTopics();
             } catch (MqttException e) {
-                System.err.println("Error resuscribiendo tópicos MQTT: " + e.getMessage());
+                log.error("Error resuscribiendo tópicos MQTT: {}", e.getMessage());
             }
         }
     }
 
     @Override
     public void connectionLost(Throwable cause) {
-        System.err.println("Conexión MQTT perdida: " + cause.getMessage());
+        log.error("Conexión MQTT perdida: {}", cause.getMessage());
     }
 
     @Override
     public void messageArrived(String topic, MqttMessage message) {
         String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
 
-        System.out.println("========== MENSAJE MQTT RECIBIDO ==========");
-        System.out.println("Tópico: " + topic);
-        System.out.println("Payload: " + payload);
-        System.out.println("===========================================");
+        log.info("========== MENSAJE MQTT RECIBIDO ==========");
+        log.info("Tópico: {}", topic);
+        log.info("Payload: {}", payload);
+        log.info("===========================================");
 
         if (topic.equals(mqttProperties.getTopics().getInfo())) {
             handleSensorInfo(payload);
@@ -71,21 +76,20 @@ public class MqttSubscriberService implements MqttCallbackExtended {
     }
 
     private void handleSensorInfo(String payload) {
-        System.out.println("Procesando información recibida desde IoT: " + payload);
-
-        // Luego aquí guardamos en MongoDB sensor_readings.
+        log.info("Procesando información recibida desde IoT: {}", payload);
+        sensorService.saveSensorSubscriber(payload);
     }
 
     private void handleSensorReading(String payload) {
-        System.out.println("Procesando lectura de sensor: " + payload);
+        log.info("Procesando lectura de sensor: {}", payload);
     }
 
     private void handleActuatorEvent(String payload) {
-        System.out.println("Procesando evento de actuador: " + payload);
+        log.info("Procesando evento de actuador: {}", payload);
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
-        System.out.println("Mensaje MQTT entregado correctamente");
+        log.info("Mensaje MQTT entregado correctamente");
     }
 }
