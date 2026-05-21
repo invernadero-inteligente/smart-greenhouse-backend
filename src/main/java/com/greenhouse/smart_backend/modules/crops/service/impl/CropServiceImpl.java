@@ -102,6 +102,7 @@ public class CropServiceImpl implements CropService {
         if (request.getPlantCount() != null) crop.setPlantCount(request.getPlantCount());
         if (request.getSowingDate() != null) crop.setSowingDate(request.getSowingDate());
         if (request.getStatus() != null)     crop.setStatus(request.getStatus());
+        if (request.getSensorHeight() != null)    crop.setSensorHeight(request.getSensorHeight());
 
         if (request.getZoneId() != null) {
             Zone zone = zoneRepository.findById(request.getZoneId())
