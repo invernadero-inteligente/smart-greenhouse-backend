@@ -1,6 +1,8 @@
 package com.greenhouse.smart_backend.modules.iot.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.greenhouse.smart_backend.modules.iot.mapper.IOTMapper;
+import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 import com.greenhouse.smart_backend.modules.iot.document.SensorReadingDocument;
 import com.greenhouse.smart_backend.modules.iot.dto.request.SensorPayloadDTO;
 import com.greenhouse.smart_backend.modules.iot.repository.SensorReadingMongoRepository;
@@ -18,19 +20,16 @@ import java.time.Instant;
 public class SensorServiceImpl implements SensorService {
     private final SensorReadingMongoRepository sensorReadingMongoRepository;
     private final ObjectMapper objectMapper;
+    private final IOTMapper iotMapper;
 
+    @Transactional
     @Override
     public void saveSensorSubscriber(String payload) {
         try {
             SensorPayloadDTO data = objectMapper.readValue(payload, SensorPayloadDTO.class);
 
-            SensorReadingDocument document = SensorReadingDocument.builder()
-                    .nodeName(data.getNode().getName())
-                    .variableName(data.getVariable().getName())
-                    .value(data.getVariable().getValue())
-                    .unit(data.getVariable().getUnit())
-                    .timestamp(Instant.now())
-                    .build();
+            SensorReadingDocument document = iotMapper.toDocument(data);
+
             SensorReadingDocument response = sensorReadingMongoRepository.save(document);
             log.info("Lectura de sensor guardada exitosamente con ID: {}", response.getId());
         } catch (Exception e) {
