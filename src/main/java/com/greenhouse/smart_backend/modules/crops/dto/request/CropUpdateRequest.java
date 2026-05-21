@@ -4,6 +4,7 @@ import com.greenhouse.smart_backend.modules.crops.model.CropStatus;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -18,4 +19,5 @@ public class CropUpdateRequest {
     private LocalDate sowingDate;
     private CropStatus status;
     private CropConditionsRequest conditions;
+    private BigDecimal sensorHeight;
 }

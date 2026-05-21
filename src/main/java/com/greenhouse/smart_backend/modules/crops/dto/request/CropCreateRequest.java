@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -18,6 +19,9 @@ public class CropCreateRequest {
 
     @Positive(message = "La cantidad de plantas debe ser mayor a cero")
     private Integer plantCount;
+
+    @Positive(message = "La altura del sensor tiene que ser mayor a cero")
+    private BigDecimal sensorHeight;
 
     @NotNull(message = "La zona es obligatoria")
     private Long zoneId;

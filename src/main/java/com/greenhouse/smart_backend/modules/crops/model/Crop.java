@@ -5,9 +5,10 @@ import com.greenhouse.smart_backend.modules.zones.model.Zone;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "crops")
 @Data
@@ -39,4 +40,7 @@ public class Crop extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private CropStatus status;
+
+    @Column(name = "sensor_height", precision = 5, scale = 2)
+    private BigDecimal sensorHeight;
 }

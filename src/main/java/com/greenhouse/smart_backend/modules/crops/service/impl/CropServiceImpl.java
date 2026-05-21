@@ -72,6 +72,7 @@ public class CropServiceImpl implements CropService {
                 .plantCount(request.getPlantCount() != null ? request.getPlantCount() : 0)
                 .sowingDate(request.getSowingDate())
                 .status(request.getStatus())
+                .sensorHeight(request.getSensorHeight())
                 .build();
 
         crop = cropRepository.save(crop);
@@ -101,6 +102,7 @@ public class CropServiceImpl implements CropService {
         if (request.getPlantCount() != null) crop.setPlantCount(request.getPlantCount());
         if (request.getSowingDate() != null) crop.setSowingDate(request.getSowingDate());
         if (request.getStatus() != null)     crop.setStatus(request.getStatus());
+        if (request.getSensorHeight() != null)    crop.setSensorHeight(request.getSensorHeight());
 
         if (request.getZoneId() != null) {
             Zone zone = zoneRepository.findById(request.getZoneId())
@@ -183,6 +185,7 @@ public class CropServiceImpl implements CropService {
                 .zoneName(crop.getZone().getName())
                 .sowingDate(crop.getSowingDate())
                 .status(crop.getStatus())
+                .sensorHeight(crop.getSensorHeight())
                 .build();
     }
 
@@ -210,6 +213,7 @@ public class CropServiceImpl implements CropService {
                 .zoneName(crop.getZone().getName())
                 .sowingDate(crop.getSowingDate())
                 .status(crop.getStatus())
+                .sensorHeight(crop.getSensorHeight())
                 .conditions(conditionsResponse)
                 .createdAt(crop.getCreatedAt())
                 .updatedAt(crop.getUpdatedAt())
