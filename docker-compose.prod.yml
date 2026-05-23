@@ -19,6 +19,13 @@ services:
     networks:
       - greenhouse-backend-net
 
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
   backend:
     build: .
     container_name: greenhouse-backend
