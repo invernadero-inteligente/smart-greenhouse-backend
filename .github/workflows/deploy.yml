@@ -40,6 +40,8 @@ jobs:
                 --email ${{ secrets.CERTBOT_EMAIL }} \
                 --agree-tos \
                 --no-eff-email \
+                --non-interactive \
+                --keep-until-expiring \
                 -d ${{ secrets.SERVER_DOMAIN }}
             
               git checkout docker-compose.prod.yml
