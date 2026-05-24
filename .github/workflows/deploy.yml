@@ -22,11 +22,9 @@ jobs:
             git fetch origin
             git pull
             
-            sudo su
-            
             CERT_PATH="${{ secrets.CERT_PATH }}/fullchain.pem"
             
-            if [ ! -f "$CERT_PATH" ]; then
+            if [ ! sudo test -f "$CERT_PATH" ]; then
               echo ">>> SSL no encontrado"
             
               sed -i "s|server_name .*;|server_name ${{ secrets.SERVER_DOMAIN }};|g" nginx/conf.d/default.conf
