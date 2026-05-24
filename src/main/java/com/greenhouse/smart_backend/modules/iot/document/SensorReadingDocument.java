@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Document(collection = "sensor_readings")
@@ -27,7 +26,7 @@ public class SensorReadingDocument {
     private String variableName;
 
     @Field("value")
-    private BigDecimal value;
+    private String value;
 
     @Field("unit")
     private String unit;
