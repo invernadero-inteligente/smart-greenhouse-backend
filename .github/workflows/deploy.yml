@@ -22,6 +22,8 @@ jobs:
             git fetch origin
             git pull
             
+            sudo su
+            
             CERT_PATH="${{ secrets.CERT_PATH }}/fullchain.pem"
             
             if [ ! -f "$CERT_PATH" ]; then
