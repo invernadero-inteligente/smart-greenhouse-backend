@@ -20,7 +20,7 @@ jobs:
             cd ${{ secrets.PROJECT_PATH }}
             
             git fetch origin
-            git pull origin/feature/deploy
+            git pull
             
             CERT_PATH="${{ secrets.CERT_PATH }}/fullchain.pem"
             
