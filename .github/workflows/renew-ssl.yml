@@ -1,0 +1,33 @@
+name: Renew SSL certificate
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Renew certificate via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo ">>> Trying to renew certificate..."
+
+            # certbot renew solo actúa si quedan < 30 días para vencer
+            RENEWED=$(docker compose -f docker-compose.prod.yml run --rm certbot renew --quiet 2>&1)
+
+            if echo "$RENEWED" | grep -q "Congratulations"; then
+              echo ">>> Certificate renewed. Reloading nginx..."
+              docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
+              echo ">>> Nginx reloaded with the new certificate."
+            else
+              echo ">>> No renewal occurred (not yet necessary). OK."
+            fi

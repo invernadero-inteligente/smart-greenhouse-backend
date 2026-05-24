@@ -1,0 +1,52 @@
+name: Deploy to production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.PROJECT_PATH }}
+            
+            git fetch origin
+            git reset --hard origin/main
+            
+            CERT_PATH="/home/${{ secrets.VPS_USER }}/smart-greenhouse-backend/certbot/conf/live/${{ secrets.SERVER_DOMAIN }}/fullchain.pem"
+            
+            if ! sudo test -f "$CERT_PATH"; then
+              echo ">>> SSL no encontrado"
+            
+              sed -i "s|server_name .*;|server_name ${{ secrets.SERVER_DOMAIN }};|g" nginx/conf.d/default.conf
+              sed -i 's|./nginx/templates:/etc/nginx/templates|./nginx/conf.d:/etc/nginx/conf.d|' docker-compose.prod.yml
+              docker compose -f docker-compose.prod.yml up --build -d
+            
+              echo ">>> Waiting for services to start..."
+              sleep 10
+            
+              docker compose -f docker-compose.prod.yml run --rm certbot certonly \
+                --webroot \
+                --webroot-path=/var/www/certbot \
+                --email ${{ secrets.CERTBOT_EMAIL }} \
+                --agree-tos \
+                --no-eff-email \
+                --non-interactive \
+                --keep-until-expiring \
+                -d ${{ secrets.SERVER_DOMAIN }}
+            
+              git checkout docker-compose.prod.yml
+              git checkout nginx/conf.d/default.conf
+            fi
+            
+            echo ">>> Deploy production"
+            docker compose -f docker-compose.prod.yml up --build -d --remove-orphans
