@@ -20,7 +20,7 @@ jobs:
             cd ${{ secrets.PROJECT_PATH }}
             
             git fetch origin
-            git pull
+            git reset --hard origin/feature/deploy
             
             CERT_PATH="/home/${{ secrets.VPS_USER }}/smart-greenhouse-backend/certbot/conf/live/${{ secrets.SERVER_DOMAIN }}/fullchain.pem"
             
