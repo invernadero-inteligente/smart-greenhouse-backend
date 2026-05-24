@@ -22,7 +22,7 @@ jobs:
             git fetch origin
             git pull
             
-            CERT_PATH="${{ secrets.CERT_PATH }}/fullchain.pem"
+            CERT_PATH="/home/${{ secrets.VPS_USER }}/smart-greenhouse-backend/certbot/conf/live/${{ secrets.SERVER_DOMAIN }}/fullchain.pem"
             
             if [ ! sudo test -f "$CERT_PATH" ]; then
               echo ">>> SSL no encontrado"
