@@ -13,5 +13,7 @@ public interface SensorReadingMongoRepository extends MongoRepository<SensorRead
     
     Optional<SensorReadingDocument> findFirstByNodeNameAndVariableNameOrderByTimestampDesc(String nodeName, String variableName);
     
+    List<SensorReadingDocument> findByNodeNameOrderByTimestampDesc(String nodeName);
+
     List<SensorReadingDocument> findByNodeNameAndVariableNameAndTimestampBetween(String nodeName, String variableName, Instant start, Instant end);
 }
