@@ -38,7 +38,7 @@ public class ZoneController {
      */
     @GetMapping
     public ResponseEntity<ApiResponseDTO<List<ZoneListResponseDTO>>> listZones(
-            @RequestParam(required = false) Boolean isActive) {
+            @RequestParam(defaultValue = "true") Boolean isActive) {
 
         log.info("GET /api/zones - isActive={}", isActive);
         return ResponseEntity.ok(ApiResponseDTO.success(zoneService.listZones(isActive)));
