@@ -39,11 +39,11 @@ public class AlertServiceImpl implements AlertService {
             AlertStatus status, Long zoneId, Long cropId,
             LocalDateTime from, LocalDateTime to) {
 
-    return alertRepository
-            .findAll(AlertSpecification.withFilters(status, zoneId, cropId, from, to))
-            .stream()
-            .map(this::toResponseDTO)
-            .toList();
+        return alertRepository
+                .findAll(AlertSpecification.withFilters(status, zoneId, cropId, from, to))
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Override
