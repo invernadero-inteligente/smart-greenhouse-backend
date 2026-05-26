@@ -107,6 +107,11 @@
 |    - **Tiempo de lectura:** 10 min
 |    - **Acción:** Lee antes de implementar gráficas en frontend
 
+### 11. **REPORTS_API.md**
+   - **Para:** Desarrolladores del equipo IS y frontend
+   - **Contenido:** Endpoint de generación de reportes PDF, tipos disponibles, ejemplos curl, nota técnica sobre AlertSpecification
+   - **Tiempo de lectura:** 8 min
+
 ---
 
 ## 🗂️ ESTRUCTURA DE CARPETAS
