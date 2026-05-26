@@ -33,18 +33,18 @@ public class AlertServiceImpl implements AlertService {
     private final CropRepository cropRepository;
     private final UserRepository userRepository;
 
-        @Override
-        @Transactional(readOnly = true)
-        public List<AlertResponseDTO> listAlerts(
-                AlertStatus status, Long zoneId, Long cropId,
-                LocalDateTime from, LocalDateTime to) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<AlertResponseDTO> listAlerts(
+            AlertStatus status, Long zoneId, Long cropId,
+            LocalDateTime from, LocalDateTime to) {
 
-        return alertRepository
-                .findAll(AlertSpecification.withFilters(status, zoneId, cropId, from, to))
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
-        }
+    return alertRepository
+            .findAll(AlertSpecification.withFilters(status, zoneId, cropId, from, to))
+            .stream()
+            .map(this::toResponseDTO)
+            .toList();
+    }
 
     @Override
     @Transactional(readOnly = true)
