@@ -90,7 +90,24 @@
    - **Contenido:** Endpoints de inventario, filtros por categoría y stock bajo, flujo Postman, ejemplos curl
    - **Tiempo de lectura:** 10 min
 
-### 9. **REPORTS_API.md**
+### 9. **DASHBOARD_MONITOREO_API.md**
+   - **Para:** Desarrolladores del equipo IS y frontend
+   - **Contenido:** Endpoints de lectura en tiempo real, estados de sensores, flujo Postman, ejemplos curl
+   - **Tiempo de lectura:** 10 min
+
+### 10. **DASHBOARD_GRAFICAS.md** ⭐ **NUEVO - IS-HU-04**
+|    - **Para:** Desarrolladores del equipo IS y frontend
+|    - **Contenido:**
+|      - Endpoint `GET /api/readings/history` para gráficas históricas
+|      - Query parameters: zoneId, variableName, from, to
+|      - Estructura de response con puntos históricos (timestamp + value)
+|      - Validaciones (400, 401, 404) y manejo de errores
+|      - Pruebas en Postman (7 casos de éxito/error)
+|      - Documentación concisa y práctica
+|    - **Tiempo de lectura:** 10 min
+|    - **Acción:** Lee antes de implementar gráficas en frontend
+
+### 11. **REPORTS_API.md**
    - **Para:** Desarrolladores del equipo IS y frontend
    - **Contenido:** Endpoint de generación de reportes PDF, tipos disponibles, ejemplos curl, nota técnica sobre AlertSpecification
    - **Tiempo de lectura:** 8 min
@@ -370,7 +387,7 @@ Al terminar de leer esta documentación, deberías ser capaz de:
 
 ---
 
-**Última actualización:** 29 de Abril de 2026  
+**Última actualización:** 25 de Mayo de 2026  
 **Versión:** 1.0.0  
 **Proyecto:** Invernadero Inteligente - Backend  
 **Estado:** 🟢 Completado y Listo
