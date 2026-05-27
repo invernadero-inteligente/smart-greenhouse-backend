@@ -5,7 +5,6 @@ import com.greenhouse.smart_backend.modules.zones.model.Zone;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(
@@ -40,6 +39,10 @@ public class ThresholdConfig {
 
     @Column(name = "max_value", precision = 10, scale = 2, nullable = false)
     private BigDecimal maxValue;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")

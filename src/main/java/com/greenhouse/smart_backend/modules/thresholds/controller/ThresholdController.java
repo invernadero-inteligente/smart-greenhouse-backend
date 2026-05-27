@@ -31,14 +31,15 @@ public class ThresholdController {
 
     private final ThresholdService thresholdService;
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+        @GetMapping
+        @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public ResponseEntity<ThresholdsDataResponseDTO<List<ThresholdZoneResponseDTO>>> listThresholds(
             @RequestParam List<Long> zoneId,
-            @RequestParam(required = false) List<String> variables) {
+                        @RequestParam(required = false) List<String> variables,
+                        @RequestParam(required = false) Boolean isActive) {
 
-        log.info("GET /api/thresholds - zoneId={}, variables={}", zoneId, variables);
-        List<ThresholdZoneResponseDTO> data = thresholdService.listThresholds(zoneId, variables);
+                log.info("GET /api/thresholds - zoneId={}, variables={}, isActive={}", zoneId, variables, isActive);
+                List<ThresholdZoneResponseDTO> data = thresholdService.listThresholds(zoneId, variables, isActive);
         return ResponseEntity.ok(ThresholdsDataResponseDTO.<List<ThresholdZoneResponseDTO>>builder()
                 .data(data)
                 .build());
@@ -66,6 +67,22 @@ public class ThresholdController {
         thresholdService.updateThreshold(id, request);
         return ResponseEntity.noContent().build();
     }
+
+        @PatchMapping("/{id}/deactivate")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<Void> deactivateThreshold(@PathVariable Long id) {
+                log.info("PATCH /api/thresholds/{}/deactivate", id);
+                thresholdService.deactivateThreshold(id);
+                return ResponseEntity.noContent().build();
+        }
+
+        @PatchMapping("/{id}/reactivate")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<Void> reactivateThreshold(@PathVariable Long id) {
+                log.info("PATCH /api/thresholds/{}/reactivate", id);
+                thresholdService.reactivateThreshold(id);
+                return ResponseEntity.noContent().build();
+        }
 }
 
 

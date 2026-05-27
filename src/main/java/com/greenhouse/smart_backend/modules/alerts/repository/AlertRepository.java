@@ -3,15 +3,19 @@ package com.greenhouse.smart_backend.modules.alerts.repository;
 import com.greenhouse.smart_backend.modules.alerts.model.Alert;
 import com.greenhouse.smart_backend.modules.alerts.model.AlertStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.criteria.Predicate;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public interface AlertRepository extends JpaRepository<Alert, Long> {
+public interface AlertRepository extends JpaRepository<Alert, Long>, JpaSpecificationExecutor<Alert> {
 
     List<Alert> findAllByStatus(AlertStatus status);
 
@@ -28,16 +32,32 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to);
 
-    @Query("SELECT a FROM Alert a WHERE " +
-           "(:status IS NULL OR a.status = :status) AND " +
-           "(:zoneId IS NULL OR a.zone.id = :zoneId) AND " +
-           "(:cropId IS NULL OR a.crop.id = :cropId) AND " +
-           "(:from IS NULL OR a.createdAt >= :from) AND " +
-           "(:to IS NULL OR a.createdAt <= :to)")
-    List<Alert> findWithFilters(
-            @Param("status") AlertStatus status,
-            @Param("zoneId") Long zoneId,
-            @Param("cropId") Long cropId,
-            @Param("from") LocalDateTime from,
-            @Param("to") LocalDateTime to);
+        default List<Alert> findWithFilters(
+                        AlertStatus status,
+                        Long zoneId,
+                        Long cropId,
+                        LocalDateTime from,
+                        LocalDateTime to) {
+                return findAll((root, query, cb) -> {
+                        List<Predicate> predicates = new ArrayList<>();
+
+                        if (status != null) {
+                                predicates.add(cb.equal(root.get("status"), status));
+                        }
+                        if (zoneId != null) {
+                                predicates.add(cb.equal(root.get("zone").get("id"), zoneId));
+                        }
+                        if (cropId != null) {
+                                predicates.add(cb.equal(root.get("crop").get("id"), cropId));
+                        }
+                        if (from != null) {
+                                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), from));
+                        }
+                        if (to != null) {
+                                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), to));
+                        }
+
+                        return cb.and(predicates.toArray(new Predicate[0]));
+                });
+        }
 }

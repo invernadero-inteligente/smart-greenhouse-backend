@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 public interface ThresholdsMapper {
 
     @Mapping(target = "name", source = "variableName")
+    @Mapping(target = "isActive", source = "active")
     ThresholdVariableResponseDTO toVariableDTO(ThresholdConfig config);
 }
 
