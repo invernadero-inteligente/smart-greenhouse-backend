@@ -14,6 +14,7 @@ public class ThresholdVariableResponseDTO {
     private String unit;
     private BigDecimal minValue;
     private BigDecimal maxValue;
+    private Boolean isActive;
     private LocalDateTime updatedAt;
 }
 

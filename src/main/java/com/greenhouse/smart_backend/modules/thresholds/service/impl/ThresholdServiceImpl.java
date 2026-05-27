@@ -34,16 +34,21 @@ public class ThresholdServiceImpl implements ThresholdService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ThresholdZoneResponseDTO> listThresholds(List<Long> zoneIds, List<String> variables) {
+    public List<ThresholdZoneResponseDTO> listThresholds(List<Long> zoneIds, List<String> variables, Boolean isActive) {
         if (zoneIds == null || zoneIds.isEmpty()) {
             throw new ValidationException("zoneId", "zoneId es requerido y no puede estar vacío");
         }
 
-        List<ThresholdConfig> configs = (variables == null || variables.isEmpty())
+        List<ThresholdConfig> rawConfigs = (variables == null || variables.isEmpty())
                 ? repository.findByZoneIdIn(zoneIds)
                 : repository.findByZoneIdInAndVariableNameIn(zoneIds, variables);
 
-        // Agrupar por id de zona y mapear cada ThresholdConfig a su DTO
+        List<ThresholdConfig> configs = isActive == null
+                ? rawConfigs
+                : rawConfigs.stream()
+                .filter(config -> config.isActive() == isActive)
+                .toList();
+
         Map<Long, List<ThresholdVariableResponseDTO>> groupedByZone = configs.stream()
                 .collect(Collectors.groupingBy(c -> c.getZone().getId(),
                         Collectors.mapping(mapper::toVariableDTO, Collectors.toList())));
@@ -62,20 +67,31 @@ public class ThresholdServiceImpl implements ThresholdService {
         validateRange(request.getMinValue(), request.getMaxValue());
 
         String variableName = normalizeVariableName(request.getVariableName());
-        if (repository.existsByZoneIdAndVariableName(request.getZoneId(), variableName)) {
+        if (repository.existsByZoneIdAndVariableNameAndIsActiveTrue(request.getZoneId(), variableName)) {
             throw new ValidationException("variableName", "ya existe un umbral para esta variable en la zona indicada");
         }
 
         Zone zone = zoneRepository.findById(request.getZoneId())
                 .orElseThrow(() -> new ResourceNotFoundException("Zona no encontrada con id: " + request.getZoneId()));
 
-        ThresholdConfig config = ThresholdConfig.builder()
-                .zone(zone)
-                .variableName(variableName)
-                .unit(request.getUnit())
-                .minValue(request.getMinValue())
-                .maxValue(request.getMaxValue())
-                .build();
+        ThresholdConfig config = repository.findByZoneIdAndVariableName(request.getZoneId(), variableName)
+                .map(existing -> {
+                    existing.setZone(zone);
+                    existing.setVariableName(variableName);
+                    existing.setUnit(request.getUnit());
+                    existing.setMinValue(request.getMinValue());
+                    existing.setMaxValue(request.getMaxValue());
+                    existing.setActive(true);
+                    return existing;
+                })
+                .orElseGet(() -> ThresholdConfig.builder()
+                        .zone(zone)
+                        .variableName(variableName)
+                        .unit(request.getUnit())
+                        .minValue(request.getMinValue())
+                        .maxValue(request.getMaxValue())
+                        .isActive(true)
+                        .build());
 
         ThresholdConfig saved = repository.save(config);
         log.info("Threshold creado id={} zoneId={} variable={}", saved.getId(), request.getZoneId(), variableName);
@@ -96,6 +112,28 @@ public class ThresholdServiceImpl implements ThresholdService {
         log.info("Threshold actualizado id={}", id);
     }
 
+    @Override
+    @Transactional
+    public void deactivateThreshold(Long id) {
+        ThresholdConfig config = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Threshold config no encontrado con id: " + id));
+
+        config.setActive(false);
+        repository.save(config);
+        log.info("Threshold desactivado id={}", id);
+    }
+
+    @Override
+    @Transactional
+    public void reactivateThreshold(Long id) {
+        ThresholdConfig config = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Threshold config no encontrado con id: " + id));
+
+        config.setActive(true);
+        repository.save(config);
+        log.info("Threshold reactivado id={}", id);
+    }
+
     private void validateRange(BigDecimal minValue, BigDecimal maxValue) {
         if (minValue.compareTo(maxValue) >= 0) {
             throw new ValidationException("minValue", "minValue debe ser menor que maxValue");
@@ -112,5 +150,3 @@ public class ThresholdServiceImpl implements ThresholdService {
         }
     }
 }
-
-
