@@ -41,7 +41,7 @@ public class SensorRequestScheduler {
         Map<Long, Zone> zonesById = activeZones.stream()
                 .collect(Collectors.toMap(Zone::getId, Function.identity()));
 
-        List<ThresholdZoneResponseDTO> thresholdsByZone = thresholdService.listThresholds(zoneIds, null);
+        List<ThresholdZoneResponseDTO> thresholdsByZone = thresholdService.listThresholds(zoneIds, null, null);
 
         if (thresholdsByZone.isEmpty()) {
             log.info("No hay thresholds configurados para las zonas activas");

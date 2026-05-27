@@ -36,7 +36,7 @@ public class ThresholdServiceImpl implements ThresholdService {
     @Transactional(readOnly = true)
     public List<ThresholdZoneResponseDTO> listThresholds(List<Long> zoneIds, List<String> variables, Boolean isActive) {
         if (zoneIds == null || zoneIds.isEmpty()) {
-            throw new ValidationException("zoneId", "zoneId es requerido y no puede estar vacío");
+            throw new ValidationException("zoneId", "zoneId es requerido y no puede estar vacÃ­o");
         }
 
         List<ThresholdConfig> rawConfigs = (variables == null || variables.isEmpty())

@@ -38,8 +38,8 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${app.cors.allowed-origins}")
-    private String allowedOrigins;
+    @Value("${app.cors.allowed-origin-patterns}")
+    private String allowedOriginPatterns;
 
     @Value("${app.cors.allowed-methods}")
     private String allowedMethods;
@@ -88,7 +88,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(parseCsv(allowedOrigins));
+        configuration.setAllowedOriginPatterns(parseCsv(allowedOriginPatterns));
         configuration.setAllowedMethods(parseCsv(allowedMethods));
         configuration.setAllowedHeaders(parseCsv(allowedHeaders));
         configuration.setAllowCredentials(allowCredentials);

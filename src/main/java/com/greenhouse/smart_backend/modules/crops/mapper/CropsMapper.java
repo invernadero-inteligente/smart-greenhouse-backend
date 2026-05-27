@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface CropsMapper {
-    @Mapping(target = "data", source = "cropResponseDTO")
+    @Mapping(target = "data", expression = "java(toResponseData(cropResponseDTO))")
     CropsDataResponseDTO<CreateCropResponseDTO> toResponse(CropResponseDTO cropResponseDTO);
 
     @Mapping(target = "status", expression = "java(cropResponseDTO.getStatus().name())")

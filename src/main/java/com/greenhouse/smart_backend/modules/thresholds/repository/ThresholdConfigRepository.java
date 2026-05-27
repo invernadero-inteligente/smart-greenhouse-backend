@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface ThresholdConfigRepository extends JpaRepository<ThresholdConfig, Long> {
     List<ThresholdConfig> findByZoneIdIn(List<Long> zoneIds);
     List<ThresholdConfig> findByZoneIdInAndVariableNameIn(List<Long> zoneIds, List<String> variableNames);
+    boolean existsByZoneIdAndVariableName(Long zoneId, String variableName);
     boolean existsByZoneIdAndVariableNameAndIsActiveTrue(Long zoneId, String variableName);
     Optional<ThresholdConfig> findByZoneIdAndVariableName(Long zoneId, String variableName);
 }

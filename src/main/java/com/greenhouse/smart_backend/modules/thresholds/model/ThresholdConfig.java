@@ -5,6 +5,7 @@ import com.greenhouse.smart_backend.modules.zones.model.Zone;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(
