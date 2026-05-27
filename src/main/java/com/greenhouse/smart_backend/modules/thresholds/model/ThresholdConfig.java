@@ -41,6 +41,10 @@ public class ThresholdConfig {
     @Column(name = "max_value", precision = 10, scale = 2, nullable = false)
     private BigDecimal maxValue;
 
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")
     private User updatedBy;

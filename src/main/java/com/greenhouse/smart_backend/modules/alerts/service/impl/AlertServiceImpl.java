@@ -5,6 +5,7 @@ import com.greenhouse.smart_backend.modules.alerts.dto.response.AlertResponseDTO
 import com.greenhouse.smart_backend.modules.alerts.model.Alert;
 import com.greenhouse.smart_backend.modules.alerts.model.AlertStatus;
 import com.greenhouse.smart_backend.modules.alerts.repository.AlertRepository;
+import com.greenhouse.smart_backend.modules.alerts.repository.AlertSpecification;
 import com.greenhouse.smart_backend.modules.alerts.service.AlertService;
 import com.greenhouse.smart_backend.modules.crops.model.Crop;
 import com.greenhouse.smart_backend.modules.crops.repository.CropRepository;
@@ -39,7 +40,7 @@ public class AlertServiceImpl implements AlertService {
             LocalDateTime from, LocalDateTime to) {
 
         return alertRepository
-                .findWithFilters(status, zoneId, cropId, from, to)
+                .findAll(AlertSpecification.withFilters(status, zoneId, cropId, from, to))
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
