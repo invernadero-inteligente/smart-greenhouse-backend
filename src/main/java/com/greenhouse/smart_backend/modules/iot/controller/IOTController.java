@@ -34,11 +34,11 @@ public class IOTController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/camera/photo/request")
-    public ResponseEntity<Void> requestPhoto() {
-        log.info("Solicitud manual de captura de foto recibida");
+    @PostMapping("/camera/photo/request/{zoneId}")
+    public ResponseEntity<Void> requestPhoto(@PathVariable("zoneId") Long zoneId) {
+        log.info("Solicitud manual de captura de foto recibida para zoneId={}", zoneId);
 
-        cameraService.requestPhoto();
+        cameraService.requestPhoto(zoneId);
 
         return ResponseEntity.accepted().build();
     }
