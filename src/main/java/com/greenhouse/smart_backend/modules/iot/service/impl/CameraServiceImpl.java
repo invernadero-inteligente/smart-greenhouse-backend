@@ -12,14 +12,19 @@ import com.greenhouse.smart_backend.modules.zones.model.Zone;
 import com.greenhouse.smart_backend.modules.zones.repository.ZoneRepository;
 import com.greenhouse.smart_backend.shared.exceptions.ResourceNotFoundException;
 import com.greenhouse.smart_backend.shared.exceptions.ValidationException;
+import com.greenhouse.smart_backend.shared.utils.MultipartUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.URLConnection;
 import java.util.Base64;
 
 @Slf4j
@@ -50,8 +55,6 @@ public class CameraServiceImpl implements CameraService {
                 PHOTO_VARIABLE
         );
     }
-
-
 
     @Override
     @Transactional
@@ -93,7 +96,9 @@ public class CameraServiceImpl implements CameraService {
                             "No existe una zona registrada con name: " + nodeName
                     ));
 
-            AIAnalysisResponseDTO responseDTO = aiClient.analyzeImage(base64ToMultipart(base64Image));
+            Resource multipartFile =
+                    MultipartUtils.base64ToResource(base64Image);
+            AIAnalysisResponseDTO responseDTO = aiClient.analyzeImage(multipartFile);
 
             AiResult photo = iotMapper.toModel(responseDTO, base64Image, zone);
 
@@ -111,34 +116,6 @@ public class CameraServiceImpl implements CameraService {
         } catch (Exception e) {
             log.error("Error procesando foto recibida por MQTT", e);
             throw new ValidationException("Error procesando foto recibida por MQTT: " + e.getMessage());
-        }
-    }
-
-    private MultipartFile base64ToMultipart(String base64) {
-
-        try {
-
-            String[] parts = base64.split(",");
-
-            String metadata = parts[0];
-            String data = parts[1];
-
-            byte[] fileContent = Base64.getDecoder().decode(data);
-
-            String contentType = metadata
-                    .split(":")[1]
-                    .split(";")[0];
-
-            String extension = contentType.split("/")[1];
-
-            return new Base64MultipartFile(
-                    fileContent,
-                    "image." + extension,
-                    contentType
-            );
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error converting Base64 to MultipartFile", e);
         }
     }
 }
