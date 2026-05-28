@@ -1,6 +1,7 @@
 package com.greenhouse.smart_backend.modules.iot.mqtt.application;
 
 import com.greenhouse.smart_backend.modules.iot.mqtt.config.MqttProperties;
+import com.greenhouse.smart_backend.modules.iot.service.CameraService;
 import com.greenhouse.smart_backend.modules.iot.service.SensorService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class MqttSubscriberService implements MqttCallbackExtended {
 
     private final MqttConnectionService mqttConnectionService;
     private final MqttProperties mqttProperties;
+    private final CameraService cameraService;
 
     private final SensorService sensorService;
 
@@ -67,7 +69,7 @@ public class MqttSubscriberService implements MqttCallbackExtended {
 
         log.info("========== MENSAJE MQTT RECIBIDO ==========");
         log.info("Tópico: {}", topic);
-        log.info("Payload: {}", payload);
+        log.info("Payload size: {} caracteres", payload.length());
         log.info("===========================================");
 
         if (topic.equals(mqttProperties.getTopics().getInfo())) {
@@ -77,7 +79,19 @@ public class MqttSubscriberService implements MqttCallbackExtended {
 
     private void handleSensorInfo(String payload) {
         log.info("Procesando información recibida desde IoT: {}", payload);
-        sensorService.saveSensorSubscriber(payload);
+        try {
+            boolean wasPhoto = cameraService.savePhotoIfPresent(payload);
+
+            if (wasPhoto) {
+                log.info("Payload procesado como foto y guardado en ai_results");
+                return;
+            }
+
+            sensorService.saveSensorSubscriber(payload);
+
+        } catch (Exception e) {
+            log.error("Error procesando mensaje recibido por /usco/info", e);
+        }
     }
 
     private void handleSensorReading(String payload) {
