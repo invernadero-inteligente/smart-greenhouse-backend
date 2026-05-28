@@ -107,6 +107,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public UserResponseDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        return toResponseDTO(user);
+    }
+
+    @Override
+    @Transactional
     public UserResponseDTO createUser(UserCreateRequest request) {
         ValidationUtil.validateNotEmpty(request.getFullName(), "fullName");
         ValidationUtil.validateEmail(request.getEmail());
@@ -175,6 +183,8 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .active(user.isActive())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 
