@@ -49,12 +49,20 @@ public class ThresholdConfig {
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
     @PreUpdate
-    public void preSave() {
+    public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 }

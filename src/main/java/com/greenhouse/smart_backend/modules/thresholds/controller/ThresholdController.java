@@ -45,6 +45,18 @@ public class ThresholdController {
                 .build());
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    public ResponseEntity<ThresholdsDataResponseDTO<ThresholdVariableResponseDTO>> getThresholdById(
+            @PathVariable Long id) {
+
+        log.info("GET /api/thresholds/{}", id);
+        ThresholdVariableResponseDTO data = thresholdService.getThresholdById(id);
+        return ResponseEntity.ok(ThresholdsDataResponseDTO.<ThresholdVariableResponseDTO>builder()
+                .data(data)
+                .build());
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ThresholdsDataResponseDTO<ThresholdVariableResponseDTO>> createThreshold(

@@ -1,0 +1,5 @@
+ALTER TABLE ai_results
+    ADD COLUMN IF NOT EXISTS image TEXT;
+
+ALTER TABLE ai_results
+ALTER COLUMN description TYPE TEXT;

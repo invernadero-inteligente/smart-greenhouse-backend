@@ -99,6 +99,15 @@ public class ThresholdServiceImpl implements ThresholdService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public ThresholdVariableResponseDTO getThresholdById(Long id) {
+        ThresholdConfig config = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Threshold config no encontrado con id: " + id));
+
+        return mapper.toVariableDTO(config);
+    }
+
+    @Override
     @Transactional
     public void updateThreshold(Long id, ThresholdUpdateRequest request) {
         validateRange(request.getMinValue(), request.getMaxValue());
