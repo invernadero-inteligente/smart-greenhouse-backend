@@ -5,26 +5,20 @@ import com.greenhouse.smart_backend.modules.ai.dto.response.AIAnalysisResponseDT
 import com.greenhouse.smart_backend.modules.ai.model.AiResult;
 import com.greenhouse.smart_backend.modules.ai.repository.AiResultRepository;
 import com.greenhouse.smart_backend.modules.iot.mapper.IOTMapper;
-import com.greenhouse.smart_backend.modules.iot.model.Base64MultipartFile;
 import com.greenhouse.smart_backend.modules.iot.mqtt.application.MqttPublisherService;
 import com.greenhouse.smart_backend.modules.iot.service.CameraService;
 import com.greenhouse.smart_backend.modules.zones.model.Zone;
 import com.greenhouse.smart_backend.modules.zones.repository.ZoneRepository;
 import com.greenhouse.smart_backend.shared.exceptions.ResourceNotFoundException;
 import com.greenhouse.smart_backend.shared.exceptions.ValidationException;
-import com.greenhouse.smart_backend.shared.utils.MultipartUtils;
+import feign.form.FormData;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.URLConnection;
 import java.util.Base64;
 
 @Slf4j
@@ -96,9 +90,14 @@ public class CameraServiceImpl implements CameraService {
                             "No existe una zona registrada con name: " + nodeName
                     ));
 
-            Resource multipartFile =
-                    MultipartUtils.base64ToResource(base64Image);
-            AIAnalysisResponseDTO responseDTO = aiClient.analyzeImage(multipartFile);
+            byte[] bytes = Base64.getDecoder().decode(base64Image);
+
+            FormData formData = new FormData(
+                    "image/jpeg",
+                    "image.jpg",
+                    bytes
+            );
+            AIAnalysisResponseDTO responseDTO = aiClient.analyzeImage(formData);
 
             AiResult photo = iotMapper.toModel(responseDTO, base64Image, zone);
 
