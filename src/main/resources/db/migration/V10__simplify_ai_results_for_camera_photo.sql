@@ -1,0 +1,23 @@
+ALTER TABLE ai_results
+DROP COLUMN IF EXISTS crop_id CASCADE;
+
+ALTER TABLE ai_results
+DROP COLUMN IF EXISTS analysis_type CASCADE;
+
+ALTER TABLE ai_results
+DROP COLUMN IF EXISTS result_label CASCADE;
+
+ALTER TABLE ai_results
+DROP COLUMN IF EXISTS confidence CASCADE;
+
+ALTER TABLE ai_results
+DROP COLUMN IF EXISTS image_url CASCADE;
+
+ALTER TABLE ai_results
+DROP COLUMN IF EXISTS metadata CASCADE;
+
+ALTER TABLE ai_results
+DROP COLUMN IF EXISTS created_at CASCADE;
+
+ALTER TABLE ai_results
+    ADD COLUMN IF NOT EXISTS description TEXT;

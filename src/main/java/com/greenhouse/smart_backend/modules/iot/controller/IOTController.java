@@ -2,6 +2,7 @@ package com.greenhouse.smart_backend.modules.iot.controller;
 
 import com.greenhouse.smart_backend.modules.iot.dto.request.ActuatorDTO;
 import com.greenhouse.smart_backend.modules.iot.service.ActuatorService;
+import com.greenhouse.smart_backend.modules.iot.service.CameraService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "IOT Controller", description = "Endpoints para gestión de eventos de actuadores")
 public class IOTController {
     private final ActuatorService actuatorService;
+    private final CameraService cameraService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/actuator/event/{zoneId}")
@@ -29,5 +31,15 @@ public class IOTController {
 
         actuatorService.saveActuatorPublisher(zoneId, actuatorDTO.getName(), actuatorDTO.getAction().toString());
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/camera/photo/request/{zoneId}")
+    public ResponseEntity<Void> requestPhoto(@PathVariable Long zoneId) {
+        log.info("Solicitud manual de captura de foto recibida para zoneId={}", zoneId);
+
+        cameraService.requestPhoto(zoneId);
+
+        return ResponseEntity.accepted().build();
     }
 }
