@@ -1,5 +1,7 @@
 package com.greenhouse.smart_backend.modules.iot.service.impl;
 
+import com.greenhouse.smart_backend.modules.ai.client.AIClient;
+import com.greenhouse.smart_backend.modules.ai.dto.response.AIAnalysisResponseDTO;
 import com.greenhouse.smart_backend.modules.ai.model.AiResult;
 import com.greenhouse.smart_backend.modules.ai.repository.AiResultRepository;
 import com.greenhouse.smart_backend.modules.iot.mqtt.application.MqttPublisherService;
@@ -12,8 +14,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.Base64;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class CameraServiceImpl implements CameraService {
     private final ObjectMapper objectMapper;
     private final ZoneRepository zoneRepository;
     private final AiResultRepository aiResultRepository;
+    private final AIClient aiClient;
 
     private final MqttPublisherService mqttPublisherService;
 
@@ -50,15 +56,15 @@ public class CameraServiceImpl implements CameraService {
         try {
             JsonNode root = objectMapper.readTree(payload);
 
-            String variableName = root.path("variable").path("name").asText(null);
+            String variableName = root.path("variable").path("name").asString(null);
 
             if (!PHOTO_VARIABLE.equalsIgnoreCase(variableName)) {
                 return false;
             }
 
-            String nodeName = root.path("node").path("name").asText(null);
-            String unit = root.path("variable").path("unit").asText(null);
-            String base64Image = root.path("variable").path("value").asText(null);
+            String nodeName = root.path("node").path("name").asString(null);
+            String unit = root.path("variable").path("unit").asString(null);
+            String base64Image = root.path("variable").path("value").asString(null);
 
             String preview = base64Image == null
                     ? "NULL"
@@ -84,6 +90,7 @@ public class CameraServiceImpl implements CameraService {
                             "No existe una zona registrada con name: " + nodeName
                     ));
 
+            AIAnalysisResponseDTO responseDTO = aiClient.analyzeImage();
             AiResult photo = new AiResult();
             photo.setZone(zone);
             photo.setDescription("Foto recibida desde IoT");
@@ -103,6 +110,28 @@ public class CameraServiceImpl implements CameraService {
         } catch (Exception e) {
             log.error("Error procesando foto recibida por MQTT", e);
             throw new ValidationException("Error procesando foto recibida por MQTT: " + e.getMessage());
+        }
+    }
+
+    private MultipartFile base64ToMultipartFile(String base64Image) {
+        try {
+            String[] parts = base64Image.split(",");
+
+            String metadata = parts[0];
+            String data = parts[1];
+
+            byte[] fileContent = Base64.getDecoder().decode(data);
+
+            String contentType = metadata
+                    .split(":")[1]
+                    .split(";")[0];
+
+            return new MockMultipartFile(
+                    "image",
+                    "image.png",
+                    contentType,
+                    fileContent
+            );
         }
     }
 }
