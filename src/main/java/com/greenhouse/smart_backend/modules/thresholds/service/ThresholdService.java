@@ -10,6 +10,7 @@ import java.util.List;
 public interface ThresholdService {
     List<ThresholdZoneResponseDTO> listThresholds(List<Long> zoneIds, List<String> variables, Boolean isActive);
     ThresholdVariableResponseDTO createThreshold(ThresholdCreateRequest request);
+    ThresholdVariableResponseDTO getThresholdById(Long id);
     void updateThreshold(Long id, ThresholdUpdateRequest request);
     void deactivateThreshold(Long id);
     void reactivateThreshold(Long id);

@@ -15,6 +15,7 @@ public class ThresholdVariableResponseDTO {
     private BigDecimal minValue;
     private BigDecimal maxValue;
     private Boolean isActive;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
 
