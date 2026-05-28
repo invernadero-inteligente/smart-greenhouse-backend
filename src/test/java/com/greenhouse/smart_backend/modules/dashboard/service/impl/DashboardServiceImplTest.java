@@ -40,7 +40,8 @@ class DashboardServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        dashboardService = new DashboardServiceImpl(zoneRepository, thresholdConfigRepository, sensorReadingMongoRepository);
+        dashboardService = new DashboardServiceImpl(zoneRepository, thresholdConfigRepository,
+                sensorReadingMongoRepository);
     }
 
     @Test
@@ -52,13 +53,13 @@ class DashboardServiceImplTest {
         ThresholdConfig humidityThreshold = threshold(zone, "AIR_HUMIDITY", "%", 40, 70);
 
         when(zoneRepository.findAllByIsActiveTrue()).thenReturn(List.of(zone));
-        when(thresholdConfigRepository.findByZoneIdIn(List.of(1L))).thenReturn(List.of(temperatureThreshold, humidityThreshold));
+        when(thresholdConfigRepository.findByZoneIdIn(List.of(1L)))
+                .thenReturn(List.of(temperatureThreshold, humidityThreshold));
         when(sensorReadingMongoRepository.findByNodeNameOrderByTimestampDesc("Zona A")).thenReturn(List.of(
                 reading("Zona A", "TEMPERATURE", "20", "C", now.minusSeconds(120)),
                 reading("Zona A", "AIR_HUMIDITY", "50", "%", now.minusSeconds(45)),
                 reading("Zona A", "TEMPERATURE", "18", "C", now.minusSeconds(30)),
-                reading("Zona A", "WATER_LEVEL", "abc", "cm", now.minusSeconds(20))
-        ));
+                reading("Zona A", "WATER_LEVEL", "abc", "cm", now.minusSeconds(20))));
 
         DashboardLatestReadingsResponseDTO response = dashboardService.getLatestReadings(null);
 
@@ -122,7 +123,8 @@ class DashboardServiceImplTest {
                 .build();
     }
 
-    private SensorReadingDocument reading(String nodeName, String variableName, String value, String unit, Instant timestamp) {
+    private SensorReadingDocument reading(String nodeName, String variableName, String value, String unit,
+            Instant timestamp) {
         return SensorReadingDocument.builder()
                 .nodeName(nodeName)
                 .variableName(variableName)
@@ -132,4 +134,3 @@ class DashboardServiceImplTest {
                 .build();
     }
 }
-
