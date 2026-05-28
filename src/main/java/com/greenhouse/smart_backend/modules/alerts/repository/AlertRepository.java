@@ -1,6 +1,7 @@
 package com.greenhouse.smart_backend.modules.alerts.repository;
 
 import com.greenhouse.smart_backend.modules.alerts.model.Alert;
+import com.greenhouse.smart_backend.modules.alerts.model.AlertSeverity;
 import com.greenhouse.smart_backend.modules.alerts.model.AlertStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -23,6 +24,13 @@ public interface AlertRepository extends JpaRepository<Alert, Long>, JpaSpecific
     List<Alert> findAllByCropId(Long cropId);
 
     List<Alert> findAllByCropIdAndStatus(Long cropId, AlertStatus status);
+
+    List<Alert> findAllByZoneIdAndVariableNameAndSeverityAndStatusAndCreatedAtGreaterThanEqual(
+            Long zoneId,
+            String variableName,
+            AlertSeverity severity,
+            AlertStatus status,
+            LocalDateTime createdAt);
 
     @Query("SELECT a FROM Alert a WHERE a.createdAt BETWEEN :from AND :to")
     List<Alert> findAllByDateRange(
