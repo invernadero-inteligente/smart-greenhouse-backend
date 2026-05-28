@@ -4,6 +4,8 @@ import com.greenhouse.smart_backend.modules.ai.client.AIClient;
 import com.greenhouse.smart_backend.modules.ai.dto.response.AIAnalysisResponseDTO;
 import com.greenhouse.smart_backend.modules.ai.model.AiResult;
 import com.greenhouse.smart_backend.modules.ai.repository.AiResultRepository;
+import com.greenhouse.smart_backend.modules.iot.mapper.IOTMapper;
+import com.greenhouse.smart_backend.modules.iot.model.Base64MultipartFile;
 import com.greenhouse.smart_backend.modules.iot.mqtt.application.MqttPublisherService;
 import com.greenhouse.smart_backend.modules.iot.service.CameraService;
 import com.greenhouse.smart_backend.modules.zones.model.Zone;
@@ -31,6 +33,7 @@ public class CameraServiceImpl implements CameraService {
     private final ZoneRepository zoneRepository;
     private final AiResultRepository aiResultRepository;
     private final AIClient aiClient;
+    private final IOTMapper iotMapper;
 
     private final MqttPublisherService mqttPublisherService;
 
@@ -90,11 +93,9 @@ public class CameraServiceImpl implements CameraService {
                             "No existe una zona registrada con name: " + nodeName
                     ));
 
-            AIAnalysisResponseDTO responseDTO = aiClient.analyzeImage();
-            AiResult photo = new AiResult();
-            photo.setZone(zone);
-            photo.setDescription("Foto recibida desde IoT");
-            photo.setImage(base64Image);
+            AIAnalysisResponseDTO responseDTO = aiClient.analyzeImage(base64ToMultipart(base64Image));
+
+            AiResult photo = iotMapper.toModel(responseDTO, base64Image, zone);
 
             AiResult saved = aiResultRepository.save(photo);
 
@@ -113,9 +114,11 @@ public class CameraServiceImpl implements CameraService {
         }
     }
 
-    private MultipartFile base64ToMultipartFile(String base64Image) {
+    private MultipartFile base64ToMultipart(String base64) {
+
         try {
-            String[] parts = base64Image.split(",");
+
+            String[] parts = base64.split(",");
 
             String metadata = parts[0];
             String data = parts[1];
@@ -126,12 +129,16 @@ public class CameraServiceImpl implements CameraService {
                     .split(":")[1]
                     .split(";")[0];
 
-            return new MockMultipartFile(
-                    "image",
-                    "image.png",
-                    contentType,
-                    fileContent
+            String extension = contentType.split("/")[1];
+
+            return new Base64MultipartFile(
+                    fileContent,
+                    "image." + extension,
+                    contentType
             );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting Base64 to MultipartFile", e);
         }
     }
 }

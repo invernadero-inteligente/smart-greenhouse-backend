@@ -23,4 +23,7 @@ public class AiResult {
 
     @Column(name = "image", columnDefinition = "TEXT")
     private String image;
+
+    @Column(name = "ai_image", columnDefinition = "TEXT")
+    private String aiImage;
 }
