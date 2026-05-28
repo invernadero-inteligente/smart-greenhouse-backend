@@ -1,6 +1,7 @@
 package com.greenhouse.smart_backend.modules.iot.service.impl;
 
 import com.greenhouse.smart_backend.modules.iot.mapper.IOTMapper;
+import com.greenhouse.smart_backend.modules.alerts.service.AutomaticAlertService;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 import com.greenhouse.smart_backend.modules.iot.document.SensorReadingDocument;
@@ -12,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,6 +20,7 @@ public class SensorServiceImpl implements SensorService {
     private final SensorReadingMongoRepository sensorReadingMongoRepository;
     private final ObjectMapper objectMapper;
     private final IOTMapper iotMapper;
+    private final AutomaticAlertService automaticAlertService;
 
     @Transactional
     @Override
@@ -46,6 +46,13 @@ public class SensorServiceImpl implements SensorService {
 
             SensorReadingDocument response = sensorReadingMongoRepository.save(document);
             log.info("✓ Lectura de sensor guardada exitosamente en Mongo con ID: {}", response.getId());
+
+            try {
+                automaticAlertService.evaluateAndCreateAlert(response);
+            } catch (Exception alertException) {
+                log.warn("No se pudo generar la alerta automática para la lectura {}: {}", response.getId(), alertException.getMessage());
+            }
+
             log.info("===========================================");
         } catch (Exception e) {
             log.error("✗ ERROR al guardar la lectura del sensor", e);

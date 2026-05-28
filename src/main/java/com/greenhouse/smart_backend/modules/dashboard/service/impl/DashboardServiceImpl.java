@@ -8,6 +8,7 @@ import com.greenhouse.smart_backend.modules.dashboard.dto.response.HistoryRespon
 import com.greenhouse.smart_backend.modules.dashboard.service.DashboardService;
 import com.greenhouse.smart_backend.modules.iot.document.SensorReadingDocument;
 import com.greenhouse.smart_backend.modules.iot.repository.SensorReadingMongoRepository;
+import com.greenhouse.smart_backend.modules.iot.service.SensorReadingEvaluationService;
 import com.greenhouse.smart_backend.modules.thresholds.model.ThresholdConfig;
 import com.greenhouse.smart_backend.modules.thresholds.repository.ThresholdConfigRepository;
 import com.greenhouse.smart_backend.modules.zones.model.Zone;
@@ -113,7 +114,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         // Obtener configuración de threshold para la unidad
         ThresholdConfig thresholdConfig = thresholdConfigRepository.findByZoneIdAndVariableName(zoneId, variableName).orElse(null);
-        String unit = determinateUnit(variableName, readings, thresholdConfig);
+        String unit = determinateUnit(readings, thresholdConfig);
 
         // Convertir a puntos históricos
         List<HistoryPointDTO> points = readings.stream()
@@ -188,14 +189,9 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private DashboardReadingDTO toReadingDTO(SensorReadingDocument reading, ThresholdConfig threshold, Instant now) {
-        BigDecimal parsedValue = parseValue(reading.getValue());
-        ReadingStatus status = threshold == null
-                ? ReadingStatus.UNKNOWN
-                : ReadingStatus.from(parsedValue, threshold.getMinValue(), threshold.getMaxValue());
-
-        String unit = threshold != null && threshold.getUnit() != null && !threshold.getUnit().isBlank()
-                ? threshold.getUnit()
-                : reading.getUnit();
+        BigDecimal parsedValue = SensorReadingEvaluationService.parseValue(reading.getValue());
+        ReadingStatus status = SensorReadingEvaluationService.resolveStatus(parsedValue, threshold);
+        String unit = SensorReadingEvaluationService.resolveUnit(reading.getUnit(), threshold);
 
         return DashboardReadingDTO.builder()
                 .variable(normalizeIdentifier(reading.getVariableName()))
@@ -215,28 +211,11 @@ public class DashboardServiceImpl implements DashboardService {
         return value == null ? null : value.trim().toUpperCase();
     }
 
-    private BigDecimal parseValue(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-
-        try {
-            return new BigDecimal(value.trim().replace(',', '.'));
-        } catch (NumberFormatException ex) {
-            log.debug("No se pudo convertir el valor '{}' a número", value);
-            return null;
-        }
-    }
-
-    private String determinateUnit(String variableName, List<SensorReadingDocument> readings, ThresholdConfig thresholdConfig) {
-        if (thresholdConfig != null && thresholdConfig.getUnit() != null && !thresholdConfig.getUnit().isBlank()) {
-            return thresholdConfig.getUnit();
-        }
-
+        private String determinateUnit(List<SensorReadingDocument> readings, ThresholdConfig thresholdConfig) {
         return readings.stream()
                 .filter(reading -> reading.getUnit() != null && !reading.getUnit().isBlank())
                 .map(SensorReadingDocument::getUnit)
                 .findFirst()
-                .orElse("N/A");
+                                .orElseGet(() -> SensorReadingEvaluationService.resolveUnit(null, thresholdConfig));
     }
 }
